@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f4aabbeb33952a498ef7c62b5c6d5da, type: 3}
+  m_Name: YellowCube
+  m_EditorClassIdentifier: 
+  name: Yellow Cube
+  sprite: {fileID: 21300000, guid: c83a6eed58ad6774a973bb471f562bd4, type: 3}
+  maxHealth: 50
+  health: 29
+  attack: 3
+  defense: 5
+  speed: 1
+  critChance: 0.5
+  type: 4
+  skills:
+  - skillBase: {fileID: 11400000, guid: 32adb1c8ef2de314981c4e06b79d7145, type: 2}
+  - skillBase: {fileID: 11400000, guid: fc14500712d607e4283266e10672b8d8, type: 2}
+  - skillBase: {fileID: 11400000, guid: a44bfae9ea9dc2f42a6e608a6a9704e8, type: 2}
+  - skillBase: {fileID: 11400000, guid: 329b9d4a5e6d667478c4b84bde9c8c0f, type: 2}

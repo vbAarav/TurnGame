@@ -16,7 +16,8 @@ MonoBehaviour:
   description: If the target is dead. Heal 10% of your Health
   category: 1
   effects:
-    changes:
+    statChanges:
     - baseStat: 1
-      change: 1
-    target: 0
+      change: 10
+      duration: 0
+      target: 0

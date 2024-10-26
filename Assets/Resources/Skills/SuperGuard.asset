@@ -16,7 +16,9 @@ MonoBehaviour:
   description: 'Increases Defense for 3 turns. Damage you take cannot be type effective. '
   category: 1
   effects:
-    changes:
+    statChanges:
     - baseStat: 3
-      change: 3
-    target: 0
+      change: 10
+      duration: 3
+      target: 0
+    statuses: []

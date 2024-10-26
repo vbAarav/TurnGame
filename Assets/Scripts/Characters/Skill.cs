@@ -1,6 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+public enum SkillCategory
+{
+    Attack,
+    Buff,
+    Debuff,
+    Status
+}
+
+public enum EffectTarget
+{
+    Self,
+    Other
+}
 
 [CreateAssetMenu(fileName = "Skill", menuName = "Character/New Skill")]
 public class Skill : ScriptableObject
@@ -23,31 +38,26 @@ public class Skill : ScriptableObject
 [System.Serializable]
 public class SkillEffects
 {
-    [SerializeField] List<StatChange> changes;
-    [SerializeField] SkillTarget target;
+    [SerializeField] List<BaseStatModifier> statChanges;
+    [SerializeField] List<StatusApplier> statuses;
 
-    public List<StatChange> Changes { get { return changes; } }
-
-    public SkillTarget Target { get { return target; } }
+    public List<BaseStatModifier> StatChanges { get{ return statChanges; } }
+    public List<StatusApplier> Statuses { get{ return statuses; } }
 }
 
 [System.Serializable]
-public class StatChange
+public class BaseStatModifier
 {
     public BaseStats baseStat;
     public int change;
+    public int duration;
+    public EffectTarget target;
 }
 
-public enum SkillCategory
+[System.Serializable]
+public class StatusApplier
 {
-    Attack,
-    Buff,
-    Debuff,
-    Status
-}
-
-public enum SkillTarget
-{
-    Self,
-    Other
+    public Status status;
+    public int duration;
+    public EffectTarget target;
 }

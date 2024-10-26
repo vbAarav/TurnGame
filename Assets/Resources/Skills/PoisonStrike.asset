@@ -16,5 +16,8 @@ MonoBehaviour:
   description: 25% chance to inflict Poison on the target.
   category: 2
   effects:
-    changes: []
-    target: 1
+    statChanges: []
+    statuses:
+    - status: {fileID: 11400000, guid: 1cccb9274357f9c4b8161df3185f0b28, type: 2}
+      duration: 3
+      target: 1

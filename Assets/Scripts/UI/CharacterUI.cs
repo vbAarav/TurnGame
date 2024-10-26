@@ -9,6 +9,7 @@ public class CharacterUI : MonoBehaviour
 {
     // References
     [SerializeField] GameObject healthBar;
+    [SerializeField] GameObject statusBar;
     public int direction = -1;
 
     // Variables
@@ -33,17 +34,19 @@ public class CharacterUI : MonoBehaviour
     }   
 
     // Initalise Character
-    public void Setup(Character character, int dir)
+    public void PlaceCharacterUI(Character character, int dir)
     {
        // Variables
        Chr = character;
        direction = dir;
        chrImage.sprite = Chr.ChrStats.Sprite;
        chrImage.color = originalColor; 
+       Chr.OnStatusChanged += UpdateStatusUI;
 
        // UI
        PlayEnterAnimation();
        UpdateHealthUI();
+       UpdateStatusUI();
     }
 
     // Battle Animations
@@ -80,7 +83,7 @@ public class CharacterUI : MonoBehaviour
         sequence.Append(chrImage.DOColor(originalColor, 0.1f));
     }
 
-    // Set the health value in UI
+    // Character UI Functions
     public void SetHealthUI(int health, int maxHealth)
     {      
         // Set Values
@@ -93,6 +96,29 @@ public class CharacterUI : MonoBehaviour
         // Set Values
         healthFill.fillAmount = (float)(Chr.ChrStats.Health)/(float)(Chr.ChrStats.MaxHealth);
         healthText.text = $"HP: {Chr.ChrStats.Health}/{Chr.ChrStats.MaxHealth}";
+    }
+
+    public void UpdateStatusUI()
+    {
+        // Remove Old Values
+        foreach (Transform icon in statusBar.transform)
+        {
+            Destroy(icon.gameObject);
+        }
+
+        // Set New Values
+        for (int i=0; i<Chr.Statuses.Count; i++)
+        {
+            // Create Icon
+            GameObject icon = new GameObject("StatusIcon");
+            icon.AddComponent<Image>().sprite = Chr.Statuses[i].Icon;
+            icon.transform.SetParent(statusBar.transform);
+
+            // Set Parameters
+            icon.transform.localPosition = new Vector3(-40 + (i * 20), 0, 0);
+            icon.transform.localScale = new Vector3(1, 1, 1);
+            icon.GetComponent<RectTransform>().sizeDelta = new Vector2(16, 16);
+        }
     }
 
     public IEnumerator UpdateHealthAnimateUI()

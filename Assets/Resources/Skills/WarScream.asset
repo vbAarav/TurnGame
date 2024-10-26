@@ -16,7 +16,9 @@ MonoBehaviour:
   description: Decrease the target's Attack for 2 turns.
   category: 2
   effects:
-    changes:
+    statChanges:
     - baseStat: 2
-      change: 2
-    target: 1
+      change: 10
+      duration: 2
+      target: 1
+    statuses: []

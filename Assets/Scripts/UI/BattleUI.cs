@@ -17,8 +17,8 @@ public class BattleUI : MonoBehaviour
     // Start is called before the first frame update
     public IEnumerator SetupUI(Character startingLeft, Character startingRight)
     {
-        chrLeft.Setup(startingLeft, -1);  
-        chrRight.Setup(startingRight, 1);
+        chrLeft.PlaceCharacterUI(startingLeft, -1);  
+        chrRight.PlaceCharacterUI(startingRight, 1);
         battleDialogue.SetSkillNames(startingLeft.ChrStats.Skills);
         yield return StartCoroutine(battleDialogue.TypeDialogue("A new battle approaches.", 30));
     }
@@ -31,6 +31,8 @@ public class BattleUI : MonoBehaviour
         // Type
         if (damage.HasAdvantage)
             damagePopup.GetComponent<DamagePopup>().SetTextColour(Color.green);
+        else if (damage.HasDisAdvantage)
+            damagePopup.GetComponent<DamagePopup>().SetTextColour(Color.red);
         else    
             damagePopup.GetComponent<DamagePopup>().SetTextColour(Color.white);
 

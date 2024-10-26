@@ -11,15 +11,16 @@ public class Character
 
     // Properties
     public Stats ChrStats {get {return chrStats;} set {chrStats = value;} }
-    public Dictionary<BaseStats, int> StatChanges { get; private set; }
+    public List<Status> Statuses { get; private set;} = new List<Status>();
+    public Dictionary<BaseStats, int> CurrentStatChanges { get; private set; }
   
-
     // Variables
-    
+    public event System.Action OnStatusChanged;
+
     // Character Initalisation
     public void SetupCharacter()
     {
-        StatChanges = new Dictionary<BaseStats, int>()
+        CurrentStatChanges = new Dictionary<BaseStats, int>()
         {
             {BaseStats.MaxHealth, 0},
             {BaseStats.Health, 0},
@@ -27,6 +28,11 @@ public class Character
             {BaseStats.Speed, 0},
             {BaseStats.Defense, 0},
         };
+    }
+
+    public void Update()
+    {
+
     }
     
     // Character Check Methods
@@ -41,6 +47,37 @@ public class Character
     }
 
     // Character Request Methods
+    public void UpdateStats()
+    {
+        foreach (KeyValuePair<BaseStats, int> statChange in CurrentStatChanges)
+        {
+            switch (statChange.Key)
+            {
+                case BaseStats.MaxHealth:
+                    ChrStats.MaxHealth = ChrStats.MaxHealth + CurrentStatChanges[BaseStats.MaxHealth];
+                    break;
+
+                case BaseStats.Health:
+                    ChrStats.Health = ChrStats.Health + CurrentStatChanges[BaseStats.Health];
+                    break;
+
+                case BaseStats.Attack:
+                    ChrStats.Attack = ChrStats.Attack + CurrentStatChanges[BaseStats.Attack];
+                    break;
+
+                case BaseStats.Speed:
+                    ChrStats.Speed = ChrStats.Speed + CurrentStatChanges[BaseStats.Speed];
+                    break;
+
+                case BaseStats.Defense:
+                    ChrStats.Defense = ChrStats.Defense + CurrentStatChanges[BaseStats.Defense];
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public Damage SendAttack(Character target)
     {
         Damage damage = new Damage();
@@ -49,7 +86,8 @@ public class Character
         damage.IsCrit = Random.value <= ChrStats.CritChance;
         damage.CriticalAmount =  damage.IsCrit ? 1.5f : 1;
         damage.HasAdvantage = Advantage(target);
-        damage.TypeAmount =  damage.HasAdvantage ? 1.5f : 1;
+        damage.HasDisAdvantage = target.Advantage(this);
+        damage.TypeAmount =  damage.HasDisAdvantage ? 0.5f : damage.HasAdvantage ? 1.5f : 1;
 
         // Calculate Damage
         damage.Amount = (int)((ChrStats.Attack + Random.Range(0, (Mathf.Log10(ChrStats.Attack) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
@@ -59,21 +97,26 @@ public class Character
 
     public void ReceiveAttack(Character target, Damage damage)
     {
-        int damageFinal = damage.Amount - ChrStats.Defense;
+        int damageFinal = Mathf.Max(0, damage.Amount - ChrStats.Defense);
+        damage.Amount = damageFinal;
         chrStats.Health = Mathf.Clamp(chrStats.Health - damageFinal, 0, chrStats.MaxHealth);
     }
 
-    public void ApplyStatChanges(List<StatChange> statChanges)
-    {
-        foreach (var statChange in statChanges)
-        {
-            if (StatChanges.ContainsKey(statChange.baseStat))
-                StatChanges[statChange.baseStat] += statChange.change;
-            else
-                StatChanges[statChange.baseStat] = statChange.change;
+    public void ApplyStatChanges(BaseStatModifier baseStatChange)
+    {        
+        if (CurrentStatChanges.ContainsKey(baseStatChange.baseStat))
+            CurrentStatChanges[baseStatChange.baseStat] += baseStatChange.change;
+        else
+            CurrentStatChanges[baseStatChange.baseStat] = baseStatChange.change;
 
-            Debug.Log($"{statChange.baseStat} increases by {statChange.change}");
-        }
+        UpdateStats();
+    }
+
+    public void AddStatus(StatusApplier statusApplier)
+    {
+        Statuses.Add(statusApplier.status);        
+        Debug.Log($"{statusApplier.status.Name} has been applied");
+        OnStatusChanged();
     }
 }
 
@@ -84,4 +127,5 @@ public class Damage
     public bool IsCrit {get; set;}
     public float TypeAmount {get; set;}
     public bool HasAdvantage {get; set;}
+    public bool HasDisAdvantage {get; set;}
 }

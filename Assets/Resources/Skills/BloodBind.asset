@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Sacrifice 1% of your Health and prevents the target from healing
   category: 2
   effects:
-    changes:
+    statChanges:
     - baseStat: 1
-      change: -1
-    target: 0
+      change: -10
+      target: 0

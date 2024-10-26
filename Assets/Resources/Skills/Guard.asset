@@ -16,7 +16,8 @@ MonoBehaviour:
   description: Increases Defense for 2 turns.
   category: 1
   effects:
-    changes:
+    statChanges:
     - baseStat: 3
-      change: 2
-    target: 0
+      change: 1
+      duration: 2
+      target: 0

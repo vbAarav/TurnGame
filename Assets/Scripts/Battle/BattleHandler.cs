@@ -152,7 +152,7 @@ public class BattleHandler : MonoBehaviour
 
         // New Character Enters the Scene
         int direction = characterUI.direction;
-        characterUI.Setup(nextChr, direction);
+        characterUI.PlaceCharacterUI(nextChr, direction);
         battleUI.battleDialogue.SetSkillNames(nextChr.ChrStats.Skills);
 
         // UI Dialogue Update
@@ -257,6 +257,26 @@ public class BattleHandler : MonoBehaviour
         battleUI.battleDialogue.EnableSkillSelector(true);
     }
 
+    // Handle any effects that a skill
+    void RunEffects(Character source, Character target, SkillInstance skill)
+    {
+        foreach (BaseStatModifier bsm in skill.SkillBase.Effects.StatChanges)
+        {
+            if (bsm.target == EffectTarget.Self)
+                source.ApplyStatChanges(bsm);
+            else
+                target.ApplyStatChanges(bsm);
+        }
+
+        foreach (StatusApplier statusApplier in skill.SkillBase.Effects.Statuses)
+        {
+            if (statusApplier.target == EffectTarget.Self)
+                source.AddStatus(statusApplier);
+            else
+                target.AddStatus(statusApplier);
+        }
+    }
+
     // Action Types
     public IEnumerator AttackAction(Character attacker, Character target)
     {
@@ -308,17 +328,7 @@ public class BattleHandler : MonoBehaviour
         // Check the skill category
         if (skill.SkillBase.Category == SkillCategory.Buff || skill.SkillBase.Category == SkillCategory.Debuff)
         {
-            if (skill.SkillBase.Effects.Changes != null)
-            {
-                if (skill.SkillBase.Effects.Target == SkillTarget.Self)
-                {
-                    attacker.ApplyStatChanges(skill.SkillBase.Effects.Changes);
-                }
-                else
-                {
-                    target.ApplyStatChanges(skill.SkillBase.Effects.Changes);
-                }
-            }
+            RunEffects(attacker, target, skill);
         }
 
         if (teamOne.Contains(attacker))

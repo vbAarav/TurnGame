@@ -16,5 +16,9 @@ MonoBehaviour:
   description: Attacks the target with a large slice.
   category: 0
   effects:
-    changes: []
-    target: 1
+    statChanges:
+    - baseStat: 1
+      change: 50
+      duration: 99
+      target: 1
+    statuses: []

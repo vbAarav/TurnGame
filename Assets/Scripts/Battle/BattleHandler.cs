@@ -72,9 +72,9 @@ public class BattleHandler : MonoBehaviour
         if (teamOne.Contains(activeChr))
         {
             // Update UI
-            if (battleUI.chrLeft.Chr != activeChr) 
+            if (battleUI.playerChrUI.Chr != activeChr) 
             {
-                StartCoroutine(SwitchCharacter(battleUI.chrLeft.Chr, activeChr, battleUI.chrLeft)); 
+                StartCoroutine(SwitchCharacter(battleUI.playerChrUI.Chr, activeChr, battleUI.playerChrUI)); 
             }
             else
             {
@@ -88,11 +88,11 @@ public class BattleHandler : MonoBehaviour
         else
         {
             // Update UI
-            if (battleUI.chrRight.Chr != activeChr) 
-                StartCoroutine(SwitchCharacter(battleUI.chrRight.Chr, activeChr, battleUI.chrRight));             
+            if (battleUI.enemyChrUI.Chr != activeChr) 
+                StartCoroutine(SwitchCharacter(battleUI.enemyChrUI.Chr, activeChr, battleUI.enemyChrUI));             
             battleUI.battleDialogue.EnableActionSelector(false);
 
-            StartCoroutine(AttackAction(activeChr, battleUI.chrLeft.Chr));
+            StartCoroutine(AttackAction(activeChr, battleUI.playerChrUI.Chr));
         }     
     }
 
@@ -122,7 +122,7 @@ public class BattleHandler : MonoBehaviour
             BattleOver(teamTwo.Contains(chr));
         else
         {
-            SwitchCharacter(chr, teamOne.Contains(chr) ? teamOne[UnityEngine.Random.Range(0, teamOne.Count)] : teamTwo[UnityEngine.Random.Range(0, teamTwo.Count)], chrUI);
+            yield return SwitchCharacter(chr, teamOne.Contains(chr) ? teamOne[UnityEngine.Random.Range(0, teamOne.Count)] : teamTwo[UnityEngine.Random.Range(0, teamTwo.Count)], chrUI);
         }
             
     }
@@ -159,7 +159,7 @@ public class BattleHandler : MonoBehaviour
         yield return StartCoroutine(battleUI.battleDialogue.TypeDialogue($"{nextChr.ChrStats.Name} approaches.", 30));
         yield return new WaitForSeconds(1f);
 
-        if (characterUI == battleUI.chrLeft)
+        if (characterUI == battleUI.playerChrUI)
             yield return StartCoroutine(battleUI.battleDialogue.TypeDialogue($"{activeChr.ChrStats.Name}'s turn, Choose an action", 30));
     }
 
@@ -188,7 +188,7 @@ public class BattleHandler : MonoBehaviour
             {
                 // Attack
                 case 0:
-                    StartCoroutine(AttackAction(activeChr, battleUI.chrRight.Chr));
+                    StartCoroutine(AttackAction(activeChr, battleUI.enemyChrUI.Chr));
                     break;
 
                 // Skip
@@ -234,7 +234,7 @@ public class BattleHandler : MonoBehaviour
 
         // Check for a selection
         if (Input.GetKeyDown(KeyCode.Z))
-            StartCoroutine(SkillAction(activeChr, battleUI.chrRight.Chr, selectedSkill));
+            StartCoroutine(SkillAction(activeChr, battleUI.enemyChrUI.Chr, selectedSkill));
         else if (Input.GetKeyDown(KeyCode.X))
             SwitchToActionSelection();
             
@@ -268,12 +268,12 @@ public class BattleHandler : MonoBehaviour
                 target.ApplyStatChanges(bsm);
         }
 
-        foreach (StatusApplier statusApplier in skill.SkillBase.Effects.Statuses)
+        foreach (StatusInstance statusInstance in skill.SkillBase.Effects.Statuses)
         {
-            if (statusApplier.target == EffectTarget.Self)
-                source.AddStatus(statusApplier);
+            if (statusInstance.Target == EffectTarget.Self)
+                source.AddStatus(statusInstance);
             else
-                target.AddStatus(statusApplier);
+                target.AddStatus(statusInstance);
         }
     }
 
@@ -283,13 +283,13 @@ public class BattleHandler : MonoBehaviour
         state = BattleState.PerformMove;
 
         // Get Characters UI
-        CharacterUI attackerUI = battleUI.chrRight;
-        CharacterUI targetUI = battleUI.chrLeft;
+        CharacterUI attackerUI = battleUI.enemyChrUI;
+        CharacterUI targetUI = battleUI.playerChrUI;
 
         if (teamOne.Contains(attacker))
         {
-            attackerUI = battleUI.chrLeft;
-            targetUI = battleUI.chrRight;
+            attackerUI = battleUI.playerChrUI;
+            targetUI = battleUI.enemyChrUI;
         }
 
         // Update Dialogue and Character UI
@@ -322,8 +322,8 @@ public class BattleHandler : MonoBehaviour
         state = BattleState.PerformMove;
 
         // Get Characters UI
-        CharacterUI attackerUI = battleUI.chrRight;
-        CharacterUI targetUI = battleUI.chrLeft;
+        CharacterUI attackerUI = battleUI.enemyChrUI;
+        CharacterUI targetUI = battleUI.playerChrUI;
 
         // Check the skill category
         if (skill.SkillBase.Category == SkillCategory.Buff || skill.SkillBase.Category == SkillCategory.Debuff)
@@ -333,8 +333,8 @@ public class BattleHandler : MonoBehaviour
 
         if (teamOne.Contains(attacker))
         {
-            attackerUI = battleUI.chrLeft;
-            targetUI = battleUI.chrRight;
+            attackerUI = battleUI.playerChrUI;
+            targetUI = battleUI.enemyChrUI;
         }
 
         // Update Dialogue and Character UI

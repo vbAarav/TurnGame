@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class BattleUI : MonoBehaviour
 {
     // References
-    [SerializeField] public CharacterUI chrLeft;
-    [SerializeField] public CharacterUI chrRight;
+    [SerializeField] public CharacterUI playerChrUI;
+    [SerializeField] public CharacterUI enemyChrUI;
 
     [SerializeField] public BattleDialogue battleDialogue;
     [SerializeField] public GameObject damagePopup;
@@ -17,10 +18,21 @@ public class BattleUI : MonoBehaviour
     // Start is called before the first frame update
     public IEnumerator SetupUI(Character startingLeft, Character startingRight)
     {
-        chrLeft.PlaceCharacterUI(startingLeft, -1);  
-        chrRight.PlaceCharacterUI(startingRight, 1);
+        playerChrUI.PlaceCharacterUI(startingLeft, -1);  
+        enemyChrUI.PlaceCharacterUI(startingRight, 1);
         battleDialogue.SetSkillNames(startingLeft.ChrStats.Skills);
         yield return StartCoroutine(battleDialogue.TypeDialogue("A new battle approaches.", 30));
+    }
+
+    public IEnumerator HandleStartTurn(CharacterUI chrUI)
+    {
+        if (chrUI == playerChrUI)
+        {
+            
+        }
+        else
+        {
+        }
     }
 
     public void CreatePopup(CharacterUI characterUI, Damage damage)

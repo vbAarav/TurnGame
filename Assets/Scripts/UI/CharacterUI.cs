@@ -111,7 +111,7 @@ public class CharacterUI : MonoBehaviour
         {
             // Create Icon
             GameObject icon = new GameObject("StatusIcon");
-            icon.AddComponent<Image>().sprite = Chr.Statuses[i].Icon;
+            icon.AddComponent<Image>().sprite = Chr.Statuses[i].Status.Icon;
             icon.transform.SetParent(statusBar.transform);
 
             // Set Parameters

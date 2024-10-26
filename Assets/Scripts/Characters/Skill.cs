@@ -39,10 +39,10 @@ public class Skill : ScriptableObject
 public class SkillEffects
 {
     [SerializeField] List<BaseStatModifier> statChanges;
-    [SerializeField] List<StatusApplier> statuses;
+    [SerializeField] List<StatusInstance> statuses;
 
     public List<BaseStatModifier> StatChanges { get{ return statChanges; } }
-    public List<StatusApplier> Statuses { get{ return statuses; } }
+    public List<StatusInstance> Statuses { get{ return statuses; } }
 }
 
 [System.Serializable]
@@ -50,14 +50,6 @@ public class BaseStatModifier
 {
     public BaseStats baseStat;
     public int change;
-    public int duration;
-    public EffectTarget target;
-}
-
-[System.Serializable]
-public class StatusApplier
-{
-    public Status status;
     public int duration;
     public EffectTarget target;
 }

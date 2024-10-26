@@ -11,7 +11,7 @@ public class Character
 
     // Properties
     public Stats ChrStats {get {return chrStats;} set {chrStats = value;} }
-    public List<Status> Statuses { get; private set;} = new List<Status>();
+    public List<StatusInstance> Statuses { get; private set;} = new List<StatusInstance>();
     public Dictionary<BaseStats, int> CurrentStatChanges { get; private set; }
   
     // Variables
@@ -112,10 +112,9 @@ public class Character
         UpdateStats();
     }
 
-    public void AddStatus(StatusApplier statusApplier)
+    public void AddStatus(StatusInstance statusInst)
     {
-        Statuses.Add(statusApplier.status);        
-        Debug.Log($"{statusApplier.status.Name} has been applied");
+        Statuses.Add(statusInst);        
         OnStatusChanged();
     }
 }

@@ -12,29 +12,41 @@ public class BattleUI : MonoBehaviour
     [SerializeField] public CharacterUI enemyChrUI;
 
     [SerializeField] public BattleDialogue battleDialogue;
+    [SerializeField] public TurnBar turnBar;
     [SerializeField] public GameObject damagePopup;
+
+    // Variables
+    public List<String> coroutineManager = new List<String>(); 
    
 
     // Start is called before the first frame update
-    public IEnumerator SetupUI(Character startingLeft, Character startingRight)
+    public IEnumerator SetupUI(Character startingLeft, Character startingRight, Queue<Character> turnOrder)
     {
         playerChrUI.PlaceCharacterUI(startingLeft, -1);  
         enemyChrUI.PlaceCharacterUI(startingRight, 1);
-        battleDialogue.SetSkillNames(startingLeft.ChrStats.Skills);
-        yield return StartCoroutine(battleDialogue.TypeDialogue("A new battle approaches.", 30));
+        battleDialogue.SetSkillNames(startingLeft.ChrBase.Skills);
+        turnBar.UpdateTurnOrder(turnOrder);
+        yield return battleDialogue.TypeDialogue("A new battle approaches.", 30);
     }
 
-    public IEnumerator HandleStartTurn(CharacterUI chrUI)
+    // Battle UI Methods
+    public CharacterUI GetCharacterUI(Character character)
     {
-        if (chrUI == playerChrUI)
+        if (playerChrUI.Chr == character)
         {
-            
+            return playerChrUI;
+        }
+        else if (enemyChrUI.Chr == character)
+        {
+            return enemyChrUI;
         }
         else
         {
+            return null;
         }
     }
 
+    // Create Damage Popup
     public void CreatePopup(CharacterUI characterUI, Damage damage)
     {
         // Create Popup

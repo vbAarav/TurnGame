@@ -7,10 +7,10 @@ using TMPro;
 public class Character
 {
     // Serialize Fields
-    [SerializeField] Stats chrStats;
+    [SerializeField] CharacterBase chrStats;
 
     // Properties
-    public Stats ChrStats {get {return chrStats;} set {chrStats = value;} }
+    public CharacterBase ChrBase {get {return chrStats;} set {chrStats = value;} }
     public List<StatusInstance> Statuses { get; private set;} = new List<StatusInstance>();
     public Dictionary<BaseStats, int> CurrentStatChanges { get; private set; }
   
@@ -20,14 +20,7 @@ public class Character
     // Character Initalisation
     public void SetupCharacter()
     {
-        CurrentStatChanges = new Dictionary<BaseStats, int>()
-        {
-            {BaseStats.MaxHealth, 0},
-            {BaseStats.Health, 0},
-            {BaseStats.Attack, 0},
-            {BaseStats.Speed, 0},
-            {BaseStats.Defense, 0},
-        };
+        ClearStatChanges();
     }
 
     public void Update()
@@ -38,12 +31,12 @@ public class Character
     // Character Check Methods
     public bool isAlive()
     {
-        return this.ChrStats.Health > 0;
+        return this.ChrBase.Health > 0;
     }
 
     public bool Advantage(Character target)
     {
-        return TypeChart.HasAdvantage(this.ChrStats.Type, target.ChrStats.Type);
+        return TypeChart.HasAdvantage(this.ChrBase.Type, target.ChrBase.Type);
     }
 
     // Character Request Methods
@@ -54,23 +47,23 @@ public class Character
             switch (statChange.Key)
             {
                 case BaseStats.MaxHealth:
-                    ChrStats.MaxHealth = ChrStats.MaxHealth + CurrentStatChanges[BaseStats.MaxHealth];
+                    ChrBase.MaxHealth = ChrBase.MaxHealth + CurrentStatChanges[BaseStats.MaxHealth];
                     break;
 
                 case BaseStats.Health:
-                    ChrStats.Health = ChrStats.Health + CurrentStatChanges[BaseStats.Health];
+                    ChrBase.Health = ChrBase.Health + CurrentStatChanges[BaseStats.Health];
                     break;
 
                 case BaseStats.Attack:
-                    ChrStats.Attack = ChrStats.Attack + CurrentStatChanges[BaseStats.Attack];
+                    ChrBase.Attack = ChrBase.Attack + CurrentStatChanges[BaseStats.Attack];
                     break;
 
                 case BaseStats.Speed:
-                    ChrStats.Speed = ChrStats.Speed + CurrentStatChanges[BaseStats.Speed];
+                    ChrBase.Speed = ChrBase.Speed + CurrentStatChanges[BaseStats.Speed];
                     break;
 
                 case BaseStats.Defense:
-                    ChrStats.Defense = ChrStats.Defense + CurrentStatChanges[BaseStats.Defense];
+                    ChrBase.Defense = ChrBase.Defense + CurrentStatChanges[BaseStats.Defense];
                     break;
                 default:
                     break;
@@ -83,25 +76,26 @@ public class Character
         Damage damage = new Damage();
 
         // Calculate Modifiers    
-        damage.IsCrit = Random.value <= ChrStats.CritChance;
+        damage.IsCrit = Random.value <= ChrBase.CritChance;
         damage.CriticalAmount =  damage.IsCrit ? 1.5f : 1;
         damage.HasAdvantage = Advantage(target);
         damage.HasDisAdvantage = target.Advantage(this);
         damage.TypeAmount =  damage.HasDisAdvantage ? 0.5f : damage.HasAdvantage ? 1.5f : 1;
 
         // Calculate Damage
-        damage.Amount = (int)((ChrStats.Attack + Random.Range(0, (Mathf.Log10(ChrStats.Attack) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
+        damage.Amount = (int)((ChrBase.Attack + Random.Range(0, (Mathf.Log10(ChrBase.Attack) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
         target.ReceiveAttack(this, damage);
         return damage;
     }
 
     public void ReceiveAttack(Character target, Damage damage)
     {
-        int damageFinal = Mathf.Max(0, damage.Amount - ChrStats.Defense);
+        int damageFinal = Mathf.Max(0, damage.Amount - ChrBase.Defense);
         damage.Amount = damageFinal;
         chrStats.Health = Mathf.Clamp(chrStats.Health - damageFinal, 0, chrStats.MaxHealth);
     }
 
+    // Apply Methods
     public void ApplyStatChanges(BaseStatModifier baseStatChange)
     {        
         if (CurrentStatChanges.ContainsKey(baseStatChange.baseStat))
@@ -112,10 +106,35 @@ public class Character
         UpdateStats();
     }
 
+    public void ClearStatChanges()
+    {
+        CurrentStatChanges = new Dictionary<BaseStats, int>()
+        {
+            {BaseStats.MaxHealth, 0},
+            {BaseStats.Health, 0},
+            {BaseStats.Attack, 0},
+            {BaseStats.Speed, 0},
+            {BaseStats.Defense, 0},
+        };
+        UpdateStats();
+    }
+
     public void AddStatus(StatusInstance statusInst)
     {
         Statuses.Add(statusInst);        
         OnStatusChanged();
+    }
+
+    public void RemoveStatus(StatusInstance statusInst)
+    {
+        Statuses.Remove(statusInst);        
+        OnStatusChanged();
+    }
+
+    public void ClearStatuses()
+    {
+        Statuses = new List<StatusInstance>();
+        //OnStatusChanged();
     }
 }
 

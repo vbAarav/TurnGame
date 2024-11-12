@@ -4085,8 +4085,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characters:
-  - chrStats: {fileID: 11400000, guid: 3364cf006606888418ebab58a7c99b18, type: 2}
-  - chrStats: {fileID: 11400000, guid: ac7300ccad3d4cd4cbe600346ee32fa3, type: 2}
+  - chrData: {fileID: 11400000, guid: 996ce99f2c170694d8c1d401ae52be20, type: 2}
+  - chrData: {fileID: 11400000, guid: 9cc16a0333c398c4c98870e6f899610c, type: 2}
 --- !u!224 &446527799 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1305766796759592089, guid: 9768f6bf663e648438807ea3d2cbcf1a, type: 3}
@@ -5741,9 +5741,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characters:
-  - chrStats: {fileID: 11400000, guid: b4fcaf3f677104c4a8ce4392826d4e2c, type: 2}
-  - chrStats: {fileID: 11400000, guid: 9cc16a0333c398c4c98870e6f899610c, type: 2}
-  - chrStats: {fileID: 11400000, guid: 996ce99f2c170694d8c1d401ae52be20, type: 2}
+  - chrData: {fileID: 11400000, guid: 3364cf006606888418ebab58a7c99b18, type: 2}
+  - chrData: {fileID: 11400000, guid: b4fcaf3f677104c4a8ce4392826d4e2c, type: 2}
+  - chrData: {fileID: 11400000, guid: ac7300ccad3d4cd4cbe600346ee32fa3, type: 2}
 --- !u!114 &1583043209
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 [System.Serializable]
 public class Character
@@ -11,6 +12,7 @@ public class Character
 
     // Properties
     public CharacterData ChrData {get {return chrData;} set {chrData = value;} }
+    public Stats ChrStats {get; set;} 
     public List<StatusInstance> Statuses { get; private set;} = new List<StatusInstance>();
     public Dictionary<StatType, int> StatChanges { get; private set; }
   
@@ -20,18 +22,34 @@ public class Character
     // Character Initalisation
     public void SetupCharacter()
     {
+        // Setup Variables
+        ChrStats = new Stats();
+
+        // Setup Function
+        LoadStats();
         ClearStatChanges();
     }
 
-    public void Update()
+    // Do Methods
+    public void LoadStats()
     {
+        ChrStats.SetStatValue(StatType.MaxHealth, ChrData.MaxHealth);
+        ChrStats.SetStatValue(StatType.Health, ChrData.Health);
+        ChrStats.SetStatValue(StatType.Attack, ChrData.Attack);
+        ChrStats.SetStatValue(StatType.Defense, ChrData.Defense);
+        ChrStats.SetStatValue(StatType.Speed, ChrData.Speed);
+    }
 
+    public void FullHeal()
+    {
+        ChrStats.SetStatValue(StatType.Health, ChrStats.GetStatValue(StatType.MaxHealth));
     }
     
     // Character Check Methods
     public bool isAlive()
     {
-        return this.ChrData.Health > 0;
+        return this.ChrStats.GetStatValue(StatType.Health) > 0;
+        
     }
 
     public bool Advantage(Character target)
@@ -42,31 +60,11 @@ public class Character
     // Character Request Methods
     public void UpdateStats()
     {
-        foreach (KeyValuePair<StatType, int> statChange in StatChanges)
+        foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
-            switch (statChange.Key)
+            if (ChrStats.HasStat(statType))
             {
-                case StatType.MaxHealth:
-                    ChrData.MaxHealth = ChrData.MaxHealth + StatChanges[StatType.MaxHealth];
-                    break;
-
-                case StatType.Health:
-                    ChrData.Health = ChrData.Health + StatChanges[StatType.Health];
-                    break;
-
-                case StatType.Attack:
-                    ChrData.Attack = ChrData.Attack + StatChanges[StatType.Attack];
-                    break;
-
-                case StatType.Speed:
-                    ChrData.Speed = ChrData.Speed + StatChanges[StatType.Speed];
-                    break;
-
-                case StatType.Defense:
-                    ChrData.Defense = ChrData.Defense + StatChanges[StatType.Defense];
-                    break;
-                default:
-                    break;
+                ChrStats.SetStatValue(statType, ChrStats.GetStatValue(statType) * StatChanges[statType]);
             }
         }
     }
@@ -76,46 +74,47 @@ public class Character
         Damage damage = new Damage();
 
         // Calculate Modifiers    
-        damage.IsCrit = Random.value <= ChrData.CritChance;
+        damage.IsCrit = UnityEngine.Random.value <= ChrData.CritChance;
         damage.CriticalAmount =  damage.IsCrit ? 1.5f : 1;
         damage.HasAdvantage = Advantage(target);
         damage.HasDisAdvantage = target.Advantage(this);
         damage.TypeAmount =  damage.HasDisAdvantage ? 0.5f : damage.HasAdvantage ? 1.5f : 1;
 
         // Calculate Damage
-        damage.Amount = (int)((ChrData.Attack + Random.Range(0, (Mathf.Log10(ChrData.Attack) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
+        damage.Amount = (int)((ChrStats.GetStatValue(StatType.Attack) + UnityEngine.Random.Range(0, (Mathf.Log10(ChrStats.GetStatValue(StatType.Attack)) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
         target.ReceiveAttack(this, damage);
         return damage;
     }
 
     public void ReceiveAttack(Character target, Damage damage)
     {
-        int damageFinal = Mathf.Max(0, damage.Amount - ChrData.Defense);
+        int damageFinal = Mathf.Max(0, damage.Amount - ChrStats.GetStatValue(StatType.Defense));
         damage.Amount = damageFinal;
-        chrData.Health = Mathf.Clamp(chrData.Health - damageFinal, 0, chrData.MaxHealth);
+        ChrStats.SetStatValue(StatType.Health, Mathf.Clamp(ChrStats.GetStatValue(StatType.Health) - damageFinal, 0, ChrStats.GetStatValue(StatType.MaxHealth)));
     }
 
     // Apply Methods
-    public void ApplyStatChanges(BaseStatModifier baseStatChange)
+    public void ApplyStatChanges(StatModifier baseStatChange)
     {        
         if (StatChanges.ContainsKey(baseStatChange.baseStat))
-            StatChanges[baseStatChange.baseStat] += baseStatChange.change;
+            StatChanges[baseStatChange.baseStat] *= (int)(baseStatChange.changeType == IncrementType.Additive ? (ChrStats.GetStatValue(baseStatChange.baseStat) + baseStatChange.change)/(ChrStats.GetStatValue(baseStatChange.baseStat)) : baseStatChange.change);
         else
-            StatChanges[baseStatChange.baseStat] = baseStatChange.change;
+            StatChanges[baseStatChange.baseStat] = (int)baseStatChange.change;
+
+        Debug.Log($"{baseStatChange.baseStat} increased by {baseStatChange.change}");
+        
 
         UpdateStats();
+        Debug.Log($"{baseStatChange.baseStat} is now at {ChrStats.GetStatValue(baseStatChange.baseStat)}");
     }
 
     public void ClearStatChanges()
     {
-        StatChanges = new Dictionary<StatType, int>()
+        StatChanges = new Dictionary<StatType, int>();
+        foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
-            {StatType.MaxHealth, 0},
-            {StatType.Health, 0},
-            {StatType.Attack, 0},
-            {StatType.Speed, 0},
-            {StatType.Defense, 0},
-        };
+            StatChanges[statType] = 1; 
+        }
         UpdateStats();
     }
 

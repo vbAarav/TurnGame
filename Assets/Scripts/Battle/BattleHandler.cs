@@ -41,17 +41,17 @@ public class BattleHandler : MonoBehaviour
         state = BattleState.Start;
 
         // Calculate turn order based on speed
-        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrData.Speed).ToList();
+        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).ToList();
         turnOrder = new Queue<Character>(allCharacters.Where(chr => chr.isAlive())); 
 
         // Update UI
-        Character left = teamOne.OrderByDescending(x => x.ChrData.Speed).FirstOrDefault();
-        Character right = teamTwo.OrderByDescending(x => x.ChrData.Speed).FirstOrDefault();
+        Character left = teamOne.OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).FirstOrDefault();
+        Character right = teamTwo.OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).FirstOrDefault();
         yield return StartCoroutine(battleUI.SetupUI(left, right, turnOrder));
         yield return new WaitForSeconds(1f);
 
         // Reset Character Values
-        allCharacters.ForEach(chr => chr.ChrData.Health = chr.ChrData.MaxHealth); // Full Heal All Players
+        allCharacters.ForEach(chr => chr.FullHeal()); // Full Heal All Players
         allCharacters.ForEach(chr => chr.ClearStatChanges()); // Clear Stat Changes
         allCharacters.ForEach(chr => chr.ClearStatuses()); // Clear Statuses Changes
 
@@ -269,7 +269,7 @@ public class BattleHandler : MonoBehaviour
     // Handle any effects that a skill
     void RunEffects(Character source, Character target, SkillInstance skill)
     {
-        foreach (BaseStatModifier bsm in skill.SkillBase.Effects.StatChanges)
+        foreach (StatModifier bsm in skill.SkillBase.Effects.StatChanges)
         {
             if (bsm.target == EffectTarget.Self)
                 source.ApplyStatChanges(bsm);

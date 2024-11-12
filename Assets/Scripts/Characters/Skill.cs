@@ -38,18 +38,11 @@ public class Skill : ScriptableObject
 [System.Serializable]
 public class SkillEffects
 {
-    [SerializeField] List<BaseStatModifier> statChanges;
+    [SerializeField] List<StatModifier> statChanges;
     [SerializeField] List<StatusInstance> statuses;
 
-    public List<BaseStatModifier> StatChanges { get{ return statChanges; } }
+    public List<StatModifier> StatChanges { get{ return statChanges; } }
     public List<StatusInstance> Statuses { get{ return statuses; } }
 }
 
-[System.Serializable]
-public class BaseStatModifier
-{
-    public StatType baseStat;
-    public int change;
-    public int duration;
-    public EffectTarget target;
-}
+

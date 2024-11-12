@@ -94,8 +94,8 @@ public class CharacterUI : MonoBehaviour
     public void UpdateHealthUI()
     {
         // Set Values
-        healthFill.fillAmount = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);
-        healthText.text = $"HP: {Chr.ChrData.Health}/{Chr.ChrData.MaxHealth}";
+        healthFill.fillAmount = (float)(Chr.ChrStats.GetStatValue(StatType.Health))/(float)(Chr.ChrStats.GetStatValue(StatType.MaxHealth));
+        healthText.text = $"HP: {Chr.ChrStats.GetStatValue(StatType.Health)}/{Chr.ChrStats.GetStatValue(StatType.MaxHealth)}";
     }
 
     public void UpdateStatusUI()
@@ -126,7 +126,7 @@ public class CharacterUI : MonoBehaviour
 
         // Variables
         float currPercentHP = healthFill.fillAmount;
-        float newPercentHP = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);
+        float newPercentHP = (float)(Chr.ChrStats.GetStatValue(StatType.Health))/(float)(Chr.ChrStats.GetStatValue(StatType.MaxHealth));
         float difference = currPercentHP - newPercentHP;
 
         // Reduce Health Slowly
@@ -138,8 +138,8 @@ public class CharacterUI : MonoBehaviour
         }
 
         // Set Values
-        healthFill.fillAmount = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);  
-        healthText.text = $"HP: {Chr.ChrData.Health}/{Chr.ChrData.MaxHealth}";     
+        healthFill.fillAmount = (float)(Chr.ChrStats.GetStatValue(StatType.Health))/(float)(Chr.ChrStats.GetStatValue(StatType.MaxHealth));  
+        healthText.text = $"HP: {Chr.ChrStats.GetStatValue(StatType.Health)}/{Chr.ChrStats.GetStatValue(StatType.MaxHealth)}";     
     }
 
     

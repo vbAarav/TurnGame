@@ -24,7 +24,7 @@ public class BattleUI : MonoBehaviour
     {
         playerChrUI.PlaceCharacterUI(startingLeft, -1);  
         enemyChrUI.PlaceCharacterUI(startingRight, 1);
-        battleDialogue.SetSkillNames(startingLeft.ChrBase.Skills);
+        battleDialogue.SetSkillNames(startingLeft.ChrData.Skills);
         turnBar.UpdateTurnOrder(turnOrder);
         yield return battleDialogue.TypeDialogue("A new battle approaches.", 30);
     }

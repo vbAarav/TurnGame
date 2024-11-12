@@ -48,7 +48,7 @@ public class SkillEffects
 [System.Serializable]
 public class BaseStatModifier
 {
-    public BaseStats baseStat;
+    public StatType baseStat;
     public int change;
     public int duration;
     public EffectTarget target;

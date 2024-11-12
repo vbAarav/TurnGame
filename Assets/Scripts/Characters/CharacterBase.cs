@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Character", menuName = "Character/New Character")]
-public class CharacterData : ScriptableObject
+public class CharacterBase : ScriptableObject
 {
     // Properties and Stats
     [SerializeField] string name;

@@ -32,7 +32,7 @@ public class TurnBar : MonoBehaviour
         {
             // Create Icon
             GameObject icon = new GameObject("CharacterIcon");
-            icon.AddComponent<Image>().sprite = characters[i % characters.Count].ChrData.Sprite;
+            icon.AddComponent<Image>().sprite = characters[i % characters.Count].ChrBase.Sprite;
             icon.transform.SetParent(icons.transform);
 
             // Set Parameters

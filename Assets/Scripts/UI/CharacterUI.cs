@@ -39,7 +39,7 @@ public class CharacterUI : MonoBehaviour
        // Variables
        Chr = character;
        direction = dir;
-       chrImage.sprite = Chr.ChrBase.Sprite;
+       chrImage.sprite = Chr.ChrData.Sprite;
        chrImage.color = originalColor; 
        Chr.OnStatusChanged += UpdateStatusUI;
 
@@ -94,8 +94,8 @@ public class CharacterUI : MonoBehaviour
     public void UpdateHealthUI()
     {
         // Set Values
-        healthFill.fillAmount = (float)(Chr.ChrBase.Health)/(float)(Chr.ChrBase.MaxHealth);
-        healthText.text = $"HP: {Chr.ChrBase.Health}/{Chr.ChrBase.MaxHealth}";
+        healthFill.fillAmount = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);
+        healthText.text = $"HP: {Chr.ChrData.Health}/{Chr.ChrData.MaxHealth}";
     }
 
     public void UpdateStatusUI()
@@ -126,7 +126,7 @@ public class CharacterUI : MonoBehaviour
 
         // Variables
         float currPercentHP = healthFill.fillAmount;
-        float newPercentHP = (float)(Chr.ChrBase.Health)/(float)(Chr.ChrBase.MaxHealth);
+        float newPercentHP = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);
         float difference = currPercentHP - newPercentHP;
 
         // Reduce Health Slowly
@@ -138,8 +138,8 @@ public class CharacterUI : MonoBehaviour
         }
 
         // Set Values
-        healthFill.fillAmount = (float)(Chr.ChrBase.Health)/(float)(Chr.ChrBase.MaxHealth);  
-        healthText.text = $"HP: {Chr.ChrBase.Health}/{Chr.ChrBase.MaxHealth}";     
+        healthFill.fillAmount = (float)(Chr.ChrData.Health)/(float)(Chr.ChrData.MaxHealth);  
+        healthText.text = $"HP: {Chr.ChrData.Health}/{Chr.ChrData.MaxHealth}";     
     }
 
     

@@ -41,17 +41,17 @@ public class BattleHandler : MonoBehaviour
         state = BattleState.Start;
 
         // Calculate turn order based on speed
-        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrBase.Speed).ToList();
+        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrData.Speed).ToList();
         turnOrder = new Queue<Character>(allCharacters.Where(chr => chr.isAlive())); 
 
         // Update UI
-        Character left = teamOne.OrderByDescending(x => x.ChrBase.Speed).FirstOrDefault();
-        Character right = teamTwo.OrderByDescending(x => x.ChrBase.Speed).FirstOrDefault();
+        Character left = teamOne.OrderByDescending(x => x.ChrData.Speed).FirstOrDefault();
+        Character right = teamTwo.OrderByDescending(x => x.ChrData.Speed).FirstOrDefault();
         yield return StartCoroutine(battleUI.SetupUI(left, right, turnOrder));
         yield return new WaitForSeconds(1f);
 
         // Reset Character Values
-        allCharacters.ForEach(chr => chr.ChrBase.Health = chr.ChrBase.MaxHealth); // Full Heal All Players
+        allCharacters.ForEach(chr => chr.ChrData.Health = chr.ChrData.MaxHealth); // Full Heal All Players
         allCharacters.ForEach(chr => chr.ClearStatChanges()); // Clear Stat Changes
         allCharacters.ForEach(chr => chr.ClearStatuses()); // Clear Statuses Changes
 
@@ -123,7 +123,7 @@ public class BattleHandler : MonoBehaviour
     public IEnumerator CharacterDies(Character chr, CharacterUI chrUI)
     {
         // UI Update
-        yield return battleUI.battleDialogue.TypeDialogue($"{chr.ChrBase.Name} dies", 30);
+        yield return battleUI.battleDialogue.TypeDialogue($"{chr.ChrData.Name} dies", 30);
         chrUI.PlayDeathAnimation();
         yield return new WaitForSeconds(2f);
 
@@ -164,10 +164,10 @@ public class BattleHandler : MonoBehaviour
         // New Character Enters the Scene
         int direction = characterUI.direction;
         characterUI.PlaceCharacterUI(nextChr, direction);
-        battleUI.battleDialogue.SetSkillNames(nextChr.ChrBase.Skills);
+        battleUI.battleDialogue.SetSkillNames(nextChr.ChrData.Skills);
 
         // UI Dialogue Update
-        yield return StartCoroutine(battleUI.battleDialogue.TypeDialogue($"{nextChr.ChrBase.Name} approaches.", 30));
+        yield return StartCoroutine(battleUI.battleDialogue.TypeDialogue($"{nextChr.ChrData.Name} approaches.", 30));
         yield return new WaitForSeconds(1f);
 
     }
@@ -235,7 +235,7 @@ public class BattleHandler : MonoBehaviour
 
         // Get Skill
         currentAction = Mathf.Clamp(currentAction, 0, battleUI.battleDialogue.actionTexts.Count - 1);
-        SkillInstance selectedSkill = activeChr.ChrBase.Skills[currentAction];
+        SkillInstance selectedSkill = activeChr.ChrData.Skills[currentAction];
 
         // Update UI
         battleUI.battleDialogue.UpdateSkillSelection(currentAction);
@@ -254,7 +254,7 @@ public class BattleHandler : MonoBehaviour
     {
         state = BattleState.ActionSelection;
         battleUI.battleDialogue.EnableSkillSelector(false);
-        battleUI.battleDialogue.SetDialogue($"{activeChr.ChrBase.Name}'s turn, Choose an action");
+        battleUI.battleDialogue.SetDialogue($"{activeChr.ChrData.Name}'s turn, Choose an action");
         battleUI.battleDialogue.EnableActionSelector(true);
     }
 
@@ -303,7 +303,7 @@ public class BattleHandler : MonoBehaviour
 
         // Update Dialogue and Character UI
         battleUI.battleDialogue.EnableActionSelector(false);
-        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrBase.Name} attacks {target.ChrBase.Name}", 30);
+        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} attacks {target.ChrData.Name}", 30);
         attackerUI.PlayAttackAnimation();
         yield return new WaitForSeconds(1f);     
         targetUI.PlayHitAnimation();   
@@ -347,7 +347,7 @@ public class BattleHandler : MonoBehaviour
 
         // Update Dialogue and Character UI
         battleUI.battleDialogue.EnableSkillSelector(false);
-        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrBase.Name} used {skill.SkillBase.Name}", 30);
+        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} used {skill.SkillBase.Name}", 30);
         yield return new WaitForSeconds(1f);    
 
         // Check if target is dead

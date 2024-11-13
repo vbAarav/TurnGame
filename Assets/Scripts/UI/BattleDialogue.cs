@@ -48,7 +48,7 @@ public class BattleDialogue : MonoBehaviour
         for (int i=0; i<skillTexts.Count; i++)
         {
             if (i < skills.Count)
-                skillTexts[i].text = skills[i].SkillBase.Name;
+                skillTexts[i].text = skills[i].SkillData.Name;
             else
                 skillTexts[i].text = "---";
         }

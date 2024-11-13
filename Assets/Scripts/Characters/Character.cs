@@ -17,7 +17,9 @@ public class Character
     public Dictionary<StatType, int> StatChanges { get; private set; }
   
     // Variables
+    public event System.Action OnHealthChanged;
     public event System.Action OnStatusChanged;
+    
 
     // Character Initalisation
     public void SetupCharacter()
@@ -28,6 +30,13 @@ public class Character
         // Setup Function
         LoadStats();
         ClearStatChanges();
+    }
+
+    // Getters and Setters
+    public void SetHealth(int value)
+    {
+        ChrStats.SetStatValue(StatType.Health, value);
+        OnHealthChanged?.Invoke();
     }
 
     // Do Methods
@@ -82,15 +91,15 @@ public class Character
 
         // Calculate Damage
         damage.Amount = (int)((ChrStats.GetStatValue(StatType.Attack) + UnityEngine.Random.Range(0, (Mathf.Log10(ChrStats.GetStatValue(StatType.Attack)) + 1) * 10)) * damage.TypeAmount * damage.CriticalAmount);
-        target.ReceiveAttack(this, damage);
+        target.ReceiveAttack(damage);
         return damage;
     }
 
-    public void ReceiveAttack(Character target, Damage damage)
+    public void ReceiveAttack(Damage damage)
     {
         int damageFinal = Mathf.Max(0, damage.Amount - ChrStats.GetStatValue(StatType.Defense));
         damage.Amount = damageFinal;
-        ChrStats.SetStatValue(StatType.Health, Mathf.Clamp(ChrStats.GetStatValue(StatType.Health) - damageFinal, 0, ChrStats.GetStatValue(StatType.MaxHealth)));
+        SetHealth(Mathf.Clamp(ChrStats.GetStatValue(StatType.Health) - damageFinal, 0, ChrStats.GetStatValue(StatType.MaxHealth)));
     }
 
     // Apply Methods
@@ -146,3 +155,4 @@ public class Damage
     public bool HasAdvantage {get; set;}
     public bool HasDisAdvantage {get; set;}
 }
+

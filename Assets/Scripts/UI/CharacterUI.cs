@@ -140,7 +140,5 @@ public class CharacterUI : MonoBehaviour
         // Set Values
         healthFill.fillAmount = (float)(Chr.ChrStats.GetStatValue(StatType.Health))/(float)(Chr.ChrStats.GetStatValue(StatType.MaxHealth));  
         healthText.text = $"HP: {Chr.ChrStats.GetStatValue(StatType.Health)}/{Chr.ChrStats.GetStatValue(StatType.MaxHealth)}";     
-    }
-
-    
+    }    
 }

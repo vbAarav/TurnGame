@@ -15,17 +15,17 @@ public class BattleUI : MonoBehaviour
     [SerializeField] public TurnBar turnBar;
     [SerializeField] public GameObject damagePopup;
 
-    // Variables
-    public List<String> coroutineManager = new List<String>(); 
    
 
     // Start is called before the first frame update
     public IEnumerator SetupUI(Character startingLeft, Character startingRight, Queue<Character> turnOrder)
     {
+        // Place Starting UI Elements
         playerChrUI.PlaceCharacterUI(startingLeft, -1);  
         enemyChrUI.PlaceCharacterUI(startingRight, 1);
         battleDialogue.SetSkillNames(startingLeft.ChrData.Skills);
         turnBar.UpdateTurnOrder(turnOrder);
+
         yield return battleDialogue.TypeDialogue("A new battle approaches.", 30);
     }
 

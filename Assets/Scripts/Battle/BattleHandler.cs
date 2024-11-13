@@ -239,7 +239,7 @@ public class BattleHandler : MonoBehaviour
 
         // Update UI
         battleUI.battleDialogue.UpdateSkillSelection(currentAction);
-        battleUI.battleDialogue.SetDialogue(selectedSkill.SkillBase.Description);
+        battleUI.battleDialogue.SetDialogue(selectedSkill.SkillData.Description);
 
         // Check for a selection
         if (Input.GetKeyDown(KeyCode.Z))
@@ -269,7 +269,7 @@ public class BattleHandler : MonoBehaviour
     // Handle any effects that a skill
     void RunEffects(Character source, Character target, SkillInstance skill)
     {
-        foreach (StatModifier bsm in skill.SkillBase.Effects.StatChanges)
+        foreach (StatModifier bsm in skill.SkillData.Effects.StatChanges)
         {
             if (bsm.target == EffectTarget.Self)
                 source.ApplyStatChanges(bsm);
@@ -277,7 +277,7 @@ public class BattleHandler : MonoBehaviour
                 target.ApplyStatChanges(bsm);
         }
 
-        foreach (StatusInstance statusInstance in skill.SkillBase.Effects.Statuses)
+        foreach (StatusInstance statusInstance in skill.SkillData.Effects.Statuses)
         {
             if (statusInstance.Target == EffectTarget.Self)
                 source.AddStatus(statusInstance);
@@ -333,21 +333,15 @@ public class BattleHandler : MonoBehaviour
         CharacterUI attackerUI = battleUI.enemyChrUI;
         CharacterUI targetUI = battleUI.playerChrUI;
 
-        // Check the skill category
-        if (skill.SkillBase.Category == SkillCategory.Buff || skill.SkillBase.Category == SkillCategory.Debuff)
-        {
-            RunEffects(attacker, target, skill);
-        }
-
         if (teamOne.Contains(attacker))
         {
             attackerUI = battleUI.playerChrUI;
             targetUI = battleUI.enemyChrUI;
         }
-
+        
         // Update Dialogue and Character UI
         battleUI.battleDialogue.EnableSkillSelector(false);
-        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} used {skill.SkillBase.Name}", 30);
+        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} used {skill.SkillData.Name}", 30);
         yield return new WaitForSeconds(1f);    
 
         // Check if target is dead

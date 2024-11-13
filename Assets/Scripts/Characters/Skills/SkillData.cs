@@ -21,7 +21,7 @@ public class SkillData : ScriptableObject
     public SkillEffects Effects { get{ return effects; } }
 
     // Methods
-    public virtual void ActivateEffects(Character target) {}
+    public virtual void ActivateEffects(Character source, Character target) {}
 
 }
 

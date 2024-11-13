@@ -338,11 +338,16 @@ public class BattleHandler : MonoBehaviour
             attackerUI = battleUI.playerChrUI;
             targetUI = battleUI.enemyChrUI;
         }
-        
+
         // Update Dialogue and Character UI
         battleUI.battleDialogue.EnableSkillSelector(false);
         yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} used {skill.SkillData.Name}", 30);
-        yield return new WaitForSeconds(1f);    
+        yield return new WaitForSeconds(1f);   
+
+        skill.SkillData.ActivateEffects(attacker, target);
+        yield return attackerUI.UpdateHealthAnimateUI();
+        yield return targetUI.UpdateHealthAnimateUI();
+        
 
         // Check if target is dead
         if (!target.isAlive())

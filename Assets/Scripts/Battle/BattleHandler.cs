@@ -7,7 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum BattleState {Start, NextTurn, ActionSelection, SkillSelection, EnemySelection, PerformMove, BattleOver, Loading}
+public enum BattleState {Start, NextTurn, Selection, PerformMove, BattleOver, Loading}
+public enum SelectionState {None, Action, Skill, Enemy}
 
 public class BattleHandler : MonoBehaviour
 {
@@ -20,7 +21,8 @@ public class BattleHandler : MonoBehaviour
     // Variables
     private Queue<Character> turnOrder;
     private Character activeChr;
-    BattleState state;
+    BattleState battleState;
+    SelectionState selectionState;
     int currentAction;
 
     public event Action<bool> OnExitBattle;
@@ -38,7 +40,8 @@ public class BattleHandler : MonoBehaviour
     public IEnumerator SetupBattle()
     {
         // Setup Battle Parameters
-        state = BattleState.Start;
+        battleState = BattleState.Start;
+        selectionState = SelectionState.None;
 
         // Calculate turn order based on speed
         var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).ToList();
@@ -82,9 +85,10 @@ public class BattleHandler : MonoBehaviour
             // Update UI
             if (battleUI.playerChrUI.Chr != activeChr) 
                 StartCoroutine(SwitchCharacter(activeChr, battleUI.playerChrUI)); 
-        
             battleUI.battleDialogue.EnableActionSelector(true);
-            state = BattleState.ActionSelection;
+
+            battleState = BattleState.Selection;
+            selectionState = SelectionState.Action;
         }
         // Enemy's Turn
         else
@@ -92,30 +96,36 @@ public class BattleHandler : MonoBehaviour
             // Update UI
             if (battleUI.enemyChrUI.Chr != activeChr) 
                 StartCoroutine(SwitchCharacter(activeChr, battleUI.enemyChrUI)); 
-            battleUI.battleDialogue.EnableActionSelector(false);            
-            state = BattleState.EnemySelection;
+            battleUI.battleDialogue.EnableActionSelector(false);
+
+
+            battleState = BattleState.Selection;
+            selectionState = SelectionState.Enemy;
         }     
     }
 
     // State Manager
     public void RunUpdate()
     {
-        if (state == BattleState.NextTurn)
+        if (battleState == BattleState.NextTurn)
         {
-            state = BattleState.Loading;
+            battleState = BattleState.Loading;
             NextTurn();
         }
-        else if (state == BattleState.ActionSelection)
+        else if (battleState == BattleState.Selection)
         {
-            HandleActionSelection();
-        }
-        else if (state == BattleState.SkillSelection)
-        {
-            HandleSkillSelection();
-        }
-        else if (state == BattleState.EnemySelection)
-        {
-            StartCoroutine(AttackAction(activeChr, battleUI.playerChrUI.Chr));
+            if (selectionState == SelectionState.Action)
+            {
+                HandleActionSelection();
+            }
+            else if (selectionState == SelectionState.Skill)
+            {
+                HandleSkillSelection();
+            }
+            else if (selectionState == SelectionState.Enemy)
+            {
+                StartCoroutine(AttackAction(activeChr, battleUI.playerChrUI.Chr));
+            }
         }
     }
 
@@ -146,7 +156,7 @@ public class BattleHandler : MonoBehaviour
     // End the Battle
     public void BattleOver(bool won)
     {
-        state = BattleState.BattleOver;
+        battleState = BattleState.BattleOver;
         teamOne.ForEach(chr => chr.ClearStatChanges());
         OnExitBattle(won);
     }
@@ -155,7 +165,7 @@ public class BattleHandler : MonoBehaviour
     // Switch the charcter
     public IEnumerator SwitchCharacter(Character nextChr, CharacterUI characterUI)
     {
-        state = BattleState.Loading;
+        battleState = BattleState.Loading;
 
         // Old Character Exits the Scene
         characterUI.PlayExitAnimation();        
@@ -260,7 +270,7 @@ public class BattleHandler : MonoBehaviour
     // Move to a different UI Screen
     private void SwitchToActionSelection()
     {
-        state = BattleState.ActionSelection;
+        selectionState = SelectionState.Action;
         battleUI.battleDialogue.EnableSkillSelector(false);
         battleUI.battleDialogue.SetDialogue($"{activeChr.ChrData.Name}'s turn, Choose an action");
         battleUI.battleDialogue.EnableActionSelector(true);
@@ -268,36 +278,16 @@ public class BattleHandler : MonoBehaviour
 
     private void SwitchToSkillSelection()
     {
-        state = BattleState.SkillSelection;
+        selectionState = SelectionState.Skill;
         battleUI.battleDialogue.EnableActionSelector(false);
         battleUI.battleDialogue.SetDialogue("");
         battleUI.battleDialogue.EnableSkillSelector(true);
     }
 
-    // Handle any effects that a skill
-    void RunEffects(Character source, Character target, SkillInstance skill)
-    {
-        foreach (StatModifier bsm in skill.SkillData.Effects.StatChanges)
-        {
-            if (bsm.target == EffectTarget.Self)
-                source.ApplyStatChanges(bsm);
-            else
-                target.ApplyStatChanges(bsm);
-        }
-
-        foreach (StatusInstance statusInstance in skill.SkillData.Effects.Statuses)
-        {
-            if (statusInstance.Target == EffectTarget.Self)
-                source.AddStatus(statusInstance);
-            else
-                target.AddStatus(statusInstance);
-        }
-    }
-
     // Action Types
     public IEnumerator AttackAction(Character attacker, Character target)
     {
-        state = BattleState.PerformMove;
+        battleState = BattleState.PerformMove;
 
         // Get Characters UI
         CharacterUI attackerUI = battleUI.enemyChrUI;
@@ -329,13 +319,13 @@ public class BattleHandler : MonoBehaviour
         }
         else
         {
-            state = BattleState.NextTurn;
+            battleState = BattleState.NextTurn;
         }        
     }
 
     public IEnumerator SkillAction(Character attacker, Character target, SkillInstance skill)
     {
-        state = BattleState.PerformMove;
+        battleState = BattleState.PerformMove;
 
         // Get Characters UI
         CharacterUI attackerUI = battleUI.enemyChrUI;
@@ -364,7 +354,7 @@ public class BattleHandler : MonoBehaviour
         }
         else
         {
-            state = BattleState.NextTurn;
+            battleState = BattleState.NextTurn;
         }        
     }
 }

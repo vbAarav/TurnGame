@@ -232,17 +232,25 @@ public class BattleHandler : MonoBehaviour
             currentAction += battleUI.battleDialogue.actionTexts.Count / 2;
         else if (Input.GetKeyDown(KeyCode.UpArrow))
             currentAction -= battleUI.battleDialogue.actionTexts.Count / 2;
-
+        currentAction = Mathf.Clamp(currentAction, 0, battleUI.battleDialogue.skillTexts.Count - 1);
+        
         // Get Skill
-        currentAction = Mathf.Clamp(currentAction, 0, battleUI.battleDialogue.actionTexts.Count - 1);
-        SkillInstance selectedSkill = activeChr.ChrData.Skills[currentAction];
-
+        SkillInstance selectedSkill;
+        try
+        {
+            selectedSkill = activeChr.ChrData.Skills[currentAction];
+        }
+        catch (Exception)
+        {
+            selectedSkill = null;
+        }
+         
         // Update UI
         battleUI.battleDialogue.UpdateSkillSelection(currentAction);
-        battleUI.battleDialogue.SetDialogue(selectedSkill.SkillData.Description);
+        battleUI.battleDialogue.SetDialogue(selectedSkill == null ? "" : selectedSkill.SkillData.Description);
 
         // Check for a selection
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z) && selectedSkill != null)
             StartCoroutine(SkillAction(activeChr, battleUI.enemyChrUI.Chr, selectedSkill));
         else if (Input.GetKeyDown(KeyCode.X))
             SwitchToActionSelection();

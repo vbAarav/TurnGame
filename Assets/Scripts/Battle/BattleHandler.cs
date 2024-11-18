@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public enum BattleState {Start, NextTurn, Selection, PerformMove, BattleOver, Loading}
 public enum SelectionState {None, Action, Skill, Enemy}
@@ -43,22 +44,36 @@ public class BattleHandler : MonoBehaviour
         battleState = BattleState.Start;
         selectionState = SelectionState.None;
 
-        // Calculate turn order based on speed
-        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).ToList();
-        turnOrder = new Queue<Character>(allCharacters.Where(chr => chr.isAlive())); 
-
-        // Update UI
+        // Get Active Characters
         Character left = teamOne.OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).FirstOrDefault();
         Character right = teamTwo.OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).FirstOrDefault();
-        yield return StartCoroutine(battleUI.SetupUI(left, right, turnOrder));
+
+        // Update UI
+        yield return StartCoroutine(battleUI.SetupUI(left, right));
         yield return new WaitForSeconds(1f);
+
+        CalculateTurnOrder();
+        ResetCharacterValues();      
+        battleState = BattleState.NextTurn;
+    }
+
+    // Clear Characters Values
+    public void ResetCharacterValues()
+    {
+        var allCharacters = teamOne.Concat(teamTwo).OrderByDescending(x => x.ChrStats.GetStatValue(StatType.Speed)).ToList();
 
         // Reset Character Values
         allCharacters.ForEach(chr => chr.FullHeal()); // Full Heal All Players
         allCharacters.ForEach(chr => chr.ClearStatChanges()); // Clear Stat Changes
         allCharacters.ForEach(chr => chr.ClearStatuses()); // Clear Statuses Changes
+    }
 
-        NextTurn();
+    // Calculate the new turn order
+    public void CalculateTurnOrder()
+    {
+        var activeCharacters = new List<Character>(){battleUI.playerChrUI.Chr, battleUI.enemyChrUI.Chr};
+        activeCharacters.Sort((chrOne, chrTwo) => chrOne.ChrStats.GetStatValue(StatType.Speed).CompareTo(chrTwo.ChrStats.GetStatValue(StatType.Speed)));
+        turnOrder = new Queue<Character>(activeCharacters);
     }
 
     // Find which Character's turn it is
@@ -72,33 +87,24 @@ public class BattleHandler : MonoBehaviour
         battleUI.turnBar.UpdateTurnOrder(turnOrder);
     }
 
-    // Run the active character's turn
+    // Transition to the next character's
     void NextTurn()
     {
-        // Switch to the Next Character's Turn
-        Character prevChr = activeChr != null ? activeChr : null;
         DequeueTurn();        
 
         // Player's Turn
         if (teamOne.Contains(activeChr))
         {
-            // Update UI
-            if (battleUI.playerChrUI.Chr != activeChr) 
-                StartCoroutine(SwitchCharacter(activeChr, battleUI.playerChrUI)); 
+         
             battleUI.battleDialogue.EnableActionSelector(true);
-
             battleState = BattleState.Selection;
             selectionState = SelectionState.Action;
         }
         // Enemy's Turn
         else
         {
-            // Update UI
-            if (battleUI.enemyChrUI.Chr != activeChr) 
-                StartCoroutine(SwitchCharacter(activeChr, battleUI.enemyChrUI)); 
+           
             battleUI.battleDialogue.EnableActionSelector(false);
-
-
             battleState = BattleState.Selection;
             selectionState = SelectionState.Enemy;
         }     
@@ -143,6 +149,8 @@ public class BattleHandler : MonoBehaviour
         else
         {
             yield return SwitchCharacter(teamOne.Contains(chr) ? teamOne[UnityEngine.Random.Range(0, teamOne.Count)] : teamTwo[UnityEngine.Random.Range(0, teamTwo.Count)], chrUI);
+            CalculateTurnOrder();
+            battleState = BattleState.NextTurn;
         }
             
     }

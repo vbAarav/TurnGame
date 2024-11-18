@@ -21,8 +21,4 @@ MonoBehaviour:
   speed: 1
   critChance: 0.5
   type: 2
-  skills:
-  - skillBase: {fileID: 11400000, guid: 32adb1c8ef2de314981c4e06b79d7145, type: 2}
-  - skillBase: {fileID: 11400000, guid: 5168115c043a63144a44f0969d0f4166, type: 2}
-  - skillBase: {fileID: 11400000, guid: 329b9d4a5e6d667478c4b84bde9c8c0f, type: 2}
-  - skillBase: {fileID: 11400000, guid: fc14500712d607e4283266e10672b8d8, type: 2}
+  skills: []

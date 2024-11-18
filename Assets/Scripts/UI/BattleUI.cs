@@ -70,4 +70,20 @@ public class BattleUI : MonoBehaviour
         // Create Popup
         Instantiate(damagePopup, characterUI.transform.position, Quaternion.identity);  
     }
+
+     public IEnumerator AnimateAttackAction(Damage damage, CharacterUI attackerUI, CharacterUI targetUI)
+    {
+        // Update Dialogue and Character UI
+        battleDialogue.EnableActionSelector(false);
+        StartCoroutine(battleDialogue.TypeDialogue($"{attackerUI.Chr.ChrData.Name} attacks {targetUI.Chr.ChrData.Name}", 30));
+        attackerUI.PlayAttackAnimation();    
+        targetUI.PlayHitAnimation();
+        yield return new WaitForSeconds(1f);   
+
+        // Update Health UI
+        StartCoroutine(targetUI.UpdateHealthAnimateUI());
+        CreatePopup(targetUI, damage);
+        yield return new WaitForSeconds(1f);
+
+    }
 }

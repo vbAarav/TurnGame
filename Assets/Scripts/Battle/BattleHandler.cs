@@ -1,6 +1,5 @@
 using System.Collections;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -88,9 +87,11 @@ public class BattleHandler : MonoBehaviour
     }
 
     // Transition to the next character's
-    void NextTurn()
+    public IEnumerator NextTurn()
     {
-        DequeueTurn();        
+        // Variables
+        DequeueTurn();
+        yield return new WaitForSeconds(1f);        
 
         // Player's Turn
         if (teamOne.Contains(activeChr))
@@ -116,7 +117,7 @@ public class BattleHandler : MonoBehaviour
         if (battleState == BattleState.NextTurn)
         {
             battleState = BattleState.Loading;
-            NextTurn();
+            StartCoroutine(NextTurn());
         }
         else if (battleState == BattleState.Selection)
         {
@@ -130,7 +131,7 @@ public class BattleHandler : MonoBehaviour
             }
             else if (selectionState == SelectionState.Enemy)
             {
-                StartCoroutine(AttackAction(activeChr, battleUI.playerChrUI.Chr));
+                AttackAction(battleUI.enemyChrUI.Chr, battleUI.playerChrUI.Chr, battleUI.enemyChrUI, battleUI.playerChrUI);
             }
         }
     }
@@ -220,12 +221,11 @@ public class BattleHandler : MonoBehaviour
             {
                 // Attack
                 case 0:
-                    StartCoroutine(AttackAction(activeChr, battleUI.enemyChrUI.Chr));
+                    AttackAction(battleUI.playerChrUI.Chr, battleUI.enemyChrUI.Chr, battleUI.playerChrUI, battleUI.enemyChrUI);
                     break;
-
                 // Skip
                 case 1:
-                    NextTurn();
+                    battleState = BattleState.NextTurn;
                     break;
 
                 // Skills
@@ -298,42 +298,20 @@ public class BattleHandler : MonoBehaviour
     }
 
     // Action Types
-    public IEnumerator AttackAction(Character attacker, Character target)
+    public void AttackAction(Character attacker, Character target, CharacterUI attackerUI, CharacterUI targetUI)
     {
+        // Variables
         battleState = BattleState.PerformMove;
+        AttackAction action = new AttackAction(activeChr, target);
 
-        // Get Characters UI
-        CharacterUI attackerUI = battleUI.enemyChrUI;
-        CharacterUI targetUI = battleUI.playerChrUI;
+        Damage damage = action.ExecuteAction();
+        StartCoroutine(battleUI.AnimateAttackAction(damage, attackerUI, targetUI));
 
-        if (teamOne.Contains(attacker))
-        {
-            attackerUI = battleUI.playerChrUI;
-            targetUI = battleUI.enemyChrUI;
-        }
-
-        // Update Dialogue and Character UI
-        battleUI.battleDialogue.EnableActionSelector(false);
-        yield return battleUI.battleDialogue.TypeDialogue($"{attacker.ChrData.Name} attacks {target.ChrData.Name}", 30);
-        attackerUI.PlayAttackAnimation();
-        yield return new WaitForSeconds(1f);     
-        targetUI.PlayHitAnimation();   
-        
-        Damage damage = attacker.SendAttack(target);
-
-        // Update Health UI
-        yield return targetUI.UpdateHealthAnimateUI();
-        battleUI.CreatePopup(targetUI, damage);
-
-        // Check if target is dead
+        // Check if the target is dead
         if (!target.isAlive())
-        {
-            yield return CharacterDies(target, targetUI);
-        }
+            StartCoroutine(CharacterDies(target, targetUI));
         else
-        {
-            battleState = BattleState.NextTurn;
-        }        
+            battleState = BattleState.NextTurn;       
     }
 
     public IEnumerator SkillAction(Character attacker, Character target, SkillInstance skill)

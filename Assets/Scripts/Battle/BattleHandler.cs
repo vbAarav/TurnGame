@@ -148,7 +148,12 @@ public class BattleHandler : MonoBehaviour
             BattleOver(teamTwo.Contains(chr));
         else
         {
-            yield return SwitchCharacter(teamOne.Contains(chr) ? teamOne[UnityEngine.Random.Range(0, teamOne.Count)] : teamTwo[UnityEngine.Random.Range(0, teamTwo.Count)], chrUI);
+            // Variables
+            var aliveTeamOne = teamOne.Where(chr => chr.isAlive()).ToList();
+            var aliveTeamTwo = teamTwo.Where(chr => chr.isAlive()).ToList();
+
+            // Switch Characters
+            yield return SwitchCharacter(teamOne.Contains(chr) ? aliveTeamOne[UnityEngine.Random.Range(0, aliveTeamOne.Count)] : aliveTeamTwo[UnityEngine.Random.Range(0, aliveTeamTwo.Count)], chrUI);
             CalculateTurnOrder();
             battleState = BattleState.NextTurn;
         }
